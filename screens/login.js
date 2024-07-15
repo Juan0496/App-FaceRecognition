@@ -17,20 +17,21 @@ export default function Login(props){
 
   const handleSignIn = async() =>{
     try{
-      formData = {
-        "usuario": email,
-        "contraseña" : password
-      }
+      
       const user = await signInWithEmailAndPassword(auth,email,password)       
-      const em = user.user.email;      
+      const em = user.user.uid;      
       console.log(em)
-      const response = await fetch(`http://127.0.0.1:8000/sigin`, {
+      const response = await fetch(`http://10.0.3.2:8000/sigin/${em}`, {
         method: 'POST',
-        body: JSON.stringify(formData)
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({email:email,password:password})
       })
-      props.navigation.navigate('TabGroup')
+      
       const json = await response.json();
-      console.log(json)
+      
+      props.navigation.navigate('TabGroup')
       }
     catch(error){
       Alert.alert(error.message)
