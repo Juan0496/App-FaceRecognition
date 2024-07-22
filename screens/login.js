@@ -8,7 +8,10 @@ import { ScrollView } from "react-native";
 import {BlurView} from 'expo-blur'
 import {useNavigation} from '@react-navigation/native'
 import 'firebase/firestore'
+import { useContext } from "react";
+import { AuthContext } from "../authProvider";
 export default function Login(props){
+  const { setToken , setUid} = useContext(AuthContext);
   const navigation = useNavigation();
   const [email, setEmail]= React.useState('')
   const [password, setPassword]= React.useState('')
@@ -16,22 +19,25 @@ export default function Login(props){
   const auth =  getAuth(appFirebase)
 
   const handleSignIn = async() =>{
-    try{
-      
-      const user = await signInWithEmailAndPassword(auth,email,password)       
-      const em = user.user.uid;      
-      console.log(em)
-      const response = await fetch(`http://10.0.3.2:8000/sigin/${em}`, {
+    try{      
+      /*const user = await signInWithEmailAndPassword(auth,email,password)       
+      const idToken = user.user.getIdToken()   
+      setToken(idToken)    */    
+    const response = await fetch('http://0.0.0.0:8000/sigin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({email:email,password:password})
-      })
+      })   
+    const json = await response.json();  
+    const token  = json.status[0]
+    const uid  = json.uid[0]
+    setToken(token) 
+    setUid(uid)
+    
+    props.navigation.navigate('TabGroup')
       
-      const json = await response.json();
-      
-      props.navigation.navigate('TabGroup')
       }
     catch(error){
       Alert.alert(error.message)

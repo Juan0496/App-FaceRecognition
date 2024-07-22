@@ -7,12 +7,15 @@ import Login from './screens/login';
 import { firebaseConfig } from './firebase-config';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { initializeApp } from 'firebase/app';
+import { AuthContext, AuthProvider } from './authProvider';
 
 export default function App() {
   return (
+    <AuthProvider>
     <SafeAreaProvider>
     <Navigation/>
     </SafeAreaProvider>
+    </AuthProvider>
   );
 }
 

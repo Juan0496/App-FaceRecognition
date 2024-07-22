@@ -18,6 +18,7 @@ function StackGroup(){
 }
 
 function TabGroup() {
+   
     return(
         <Tab.Navigator
         screenOptions={({route})=>({
@@ -34,7 +35,7 @@ function TabGroup() {
             }
         })}     
         >
-            <Tab.Screen name="Home" component={Home}/>
+            <Tab.Screen name="Home" component={Home} />
             <Tab.Screen name="About" component={About}/>
         </Tab.Navigator>
     )
