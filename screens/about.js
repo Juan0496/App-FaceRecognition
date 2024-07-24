@@ -1,4 +1,128 @@
+import Paho from 'paho-mqtt'
+import { View,Text, StyleSheet, Pressable, Image, Alert, TouchableHighlight, PixelRatio }from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {  useEffect} from "react";
+export default function About(){
+  const insets = useSafeAreaInsets();
+  const clientId = `react_native_${Math.random().toString(16)}`
+  const client = new Paho.Client(
+    "broker.hivemq.com",
+    8000,
+    clientId 
+); 
+useEffect(()=>{
 
+  client.connect({
+    onSuccess: () =>{
+      console.log("Connected!");
+     
+    },
+    onFailure: () =>{
+      console.log("Fallo!");
+    }
+})
+
+return () => {
+  client.disconnect();
+};
+
+},[])
+
+const handlePublishOn = async () => { 
+  
+  const mensajeLed = new Paho.Message("1")
+    mensajeLed.destinationName = '/swa/commands';
+  client.send(mensajeLed)
+  console.log(mensajeLed)
+
+ 
+};
+const handlePublishOff = async () => {
+ 
+    
+  const mensajeLed = new Paho.Message("0")
+  mensajeLed.destinationName = '/swa/commands';
+client.send(mensajeLed)
+console.log(mensajeLed)
+
+
+};
+
+return(
+<View style={{paddingBottom: insets.bottom, paddingTop: insets.top ,alignItems: 'center',
+          justifyContent: 'center' }}>
+<Text>
+                Activacion de la Alarma
+            </Text>          
+              <TouchableHighlight
+              underlayColor={"#09f"}
+              onPress={handlePublishOn}
+              style={styles.buton} >
+                <Text style={{fontSize: 17, fontWeight:'400', backgroundColor: '#A569BD',}}>Encender</Text>
+              </TouchableHighlight>
+                   
+              <TouchableHighlight
+              underlayColor={"#09f"}
+              onPress={handlePublishOff}
+              style={styles.buton} >
+                <Text style={{fontSize: 17, fontWeight:'400', backgroundColor: '#A569BD',}}>Apagar</Text>
+              </TouchableHighlight>
+</View>
+)
+
+}
+
+const styles = StyleSheet.create({
+  container:{
+    flex:1,
+    borderBlockStartColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  
+  },
+  video:{
+    width:'90%',
+    height:'50%',
+    alignContent: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'white'
+  },
+  login:{
+    width: 350,
+    height: 500,
+    borderColor: '#F08080',
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    
+  },
+  cuenta: {
+    width:250,
+    height:40,
+    borderBlockColor: "#F08080",
+    borderWidth: 2,
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 10,
+    backgroundColor: '#A569BD',
+    marginBottom: 20     
+  },
+  buton:{
+    width: 250,
+    height:40,
+    borderRadius: 10,
+    backgroundColor: '#A569BD',
+    alignItems:'center',
+    justifyContent: 'center',
+    marginVertical:10,
+  }
+ 
+})
+
+
+
+/*
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Button, Platform } from 'react-native';
@@ -42,9 +166,7 @@ const About = () => {
 
   const activate = async(expoPushToken) =>{
     try{      
-      /*const user = await signInWithEmailAndPassword(auth,email,password)       
-      const idToken = user.user.getIdToken()   
-      setToken(idToken)    */    
+        
     const expo_push_token = expoPushToken
     const title = "Notificacion"
     const body = "Esto es una notificacion"
@@ -120,3 +242,4 @@ const About = () => {
   );
 }
 export default About;
+*/

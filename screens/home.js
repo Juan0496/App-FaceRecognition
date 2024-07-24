@@ -1,22 +1,23 @@
-import { View,Text, StyleSheet, Pressable, Image, Alert, TouchableHighlight, PixelRatio }from "react-native";
+import { View,Text, StyleSheet,  TouchableHighlight}from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useState , useRef} from "react";
-import appFirebase from "../firebase-config";
-import {getAuth, onAuthStateChanged, signInWithEmailAndPassword} from 'firebase/auth'
+import { useState , useRef, useEffect} from "react";
+
 import { useContext } from "react";
 import { AuthContext } from "../authProvider";
-import { Video, ResizeMode } from 'expo-av';
 
 export default function Home(){
-    const { token , uid} = useContext(AuthContext);
+
+    const { token } = useContext(AuthContext);
     const [est,setEst] = useState(false)
+    const [proceso,setProceso] = useState(false)
     const insets = useSafeAreaInsets();
-    const [but,setBut]=useState("Iniciar")
-    const ws = useRef(null);
-    
-      const connectWebSocket = async () => {        
-        // Incluir el token en la URL del WebSocket
-       
+    const [butc,setButc]=useState("Iniciar")
+    const [butd,setButd]=useState("Iniciar")
+    const ws = useRef(null); 
+   const [mensaje,setMensaje]=useState(" ")
+  
+       // Incluir el token en la URL del WebSocket
+       const connectWebSocket = async() =>{ 
         ws.current = new WebSocket(`ws://10.0.3.2:8000/procesamiento?token=${token}`);  
         ws.current.onopen = () => {
           console.log('Conexión WebSocket abierta');
@@ -24,7 +25,10 @@ export default function Home(){
         ws.current.onmessage = (e) => {
           
           const mess = e.data
-          console.log(mess);
+          setMensaje(mess)
+          console.log(mess)
+          
+          
         };  
         ws.current.onclose = (e) => {
           console.log('Conexión WebSocket cerrada');
@@ -32,61 +36,73 @@ export default function Home(){
         ws.current.onerror = (e) => {
           console.error('WebSocket error', e.message);
         };
-        
       } 
-const setestado = async () =>{
+       
+  
+const setConection = async () =>{
   setEst(!est)
+  
   if(est) {
-  await  connectWebSocket() 
-    setBut("Detener") 
- 
+  await  connectWebSocket()    
+  setButc("Detener")  
+  await MqttConect()
   }
-  if(!est && ws.current && ws.current.readyState === WebSocket.OPEN){
-   await ws.send("off")
-   await ws.current.close();
-   setBut("Iniciar") 
+  if(!est && ws.current && ws.current.readyState === WebSocket.OPEN){   
   
-  
-  }
+   await ws.current.close();  
+   setButc("Iniciar")   
 
+  }
 }
-const video = useRef(null);
-const [status, setStatus] = useState({});
-      
 
-    return(
+
+const setmensaje = async () =>{
+ 
+  setProceso(!proceso)
+  console.log(proceso)
+  
+  if(proceso && ws.current && ws.current.readyState === WebSocket.OPEN){
+   await ws.current.send("on")
+  setButd("Detener")
+
+  }
+  else if (!proceso && ws.current && ws.current.readyState === WebSocket.OPEN){
+    await ws.current.send("off")
+    setButd("Iniciar")
+   
+    }
+  else if(!ws.current && ws.current.readyState !== WebSocket.OPEN){
+    print("cliente desconectado")
+  }
+}
+
+   return(
         <View style={{paddingBottom: insets.bottom, paddingTop: insets.top ,alignItems: 'center',
           justifyContent: 'center' }}>
             <Text>
+                Conectar
+            </Text>          
+              <TouchableHighlight
+              underlayColor={"#09f"}
+              onPress={setConection }
+              style={styles.buton} >
+                <Text style={{fontSize: 17, fontWeight:'400', backgroundColor: '#A569BD',}}>{butc}</Text>
+              </TouchableHighlight>
+              <Text>
                 Iniciar detección
             </Text>          
               <TouchableHighlight
               underlayColor={"#09f"}
-              onPress={setestado }
+              onPress={setmensaje }
               style={styles.buton} >
-                <Text style={{fontSize: 17, fontWeight:'400', backgroundColor: '#A569BD',}}>{but}</Text>
+                <Text style={{fontSize: 17, fontWeight:'400', backgroundColor: '#A569BD',}}>{butd}</Text>
               </TouchableHighlight>
-              <Video
-            ref={video}
-              style={styles.video}
-              source={{
-                uri: "rtsp://admin:forbidenmemoris4@192.168.18.65:554/Streaming/Channels/1",
-              }}
-              useNativeControls
-              resizeMode={ResizeMode.CONTAIN}
-              isLooping
-              onPlaybackStatusUpdate={status => setStatus(() => status)}
-      />
-      <View  >
-      <TouchableHighlight
-         style={styles.buton}
-          onPress={() =>
-            status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
-          }
-        >
-          <Text  >{status.isPlaying ? 'Pause' : 'Play'}</Text>
-          </TouchableHighlight>
-        </View>
+              <Text>
+                {mensaje}
+            </Text>  
+           
+             
+ 
           
         </View>
     )
@@ -105,8 +121,9 @@ const styles = StyleSheet.create({
     video:{
       width:'90%',
       height:'50%',
-      resizeMode:'cover',
-      backgroundColor: 'blue'
+      alignContent: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'white'
     },
     login:{
       width: 350,

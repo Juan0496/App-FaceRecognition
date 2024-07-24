@@ -1,8 +1,6 @@
-import { View,Text, StyleSheet, Pressable, Image, Alert, TouchableHighlight } from "react-native";
+import { View,Text, StyleSheet, Image, Alert, TouchableHighlight } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TextInput } from "react-native";
-import appFirebase from "../firebase-config";
-import {getAuth, onAuthStateChanged, signInWithEmailAndPassword} from 'firebase/auth'
 import React from "react";
 import { ScrollView } from "react-native";
 import {BlurView} from 'expo-blur'
@@ -16,14 +14,12 @@ export default function Login(props){
   const [email, setEmail]= React.useState('')
   const [password, setPassword]= React.useState('')
   
-  const auth =  getAuth(appFirebase)
+  
 
   const handleSignIn = async() =>{
     try{      
-      /*const user = await signInWithEmailAndPassword(auth,email,password)       
-      const idToken = user.user.getIdToken()   
-      setToken(idToken)    */    
-    const response = await fetch('http://0.0.0.0:8000/sigin', {
+       
+    const response = await fetch('http://10.0.3.2:8000/sigin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -43,7 +39,11 @@ export default function Login(props){
       Alert.alert(error.message)
     }
   }
-    const insets = useSafeAreaInsets();
+  
+    
+
+  
+  const insets = useSafeAreaInsets();
     return(
       <View style={[styles.container, {paddingBottom: insets.bottom, paddingTop: insets.top }]}>
         <Image source={{}} style={[styles.image, StyleSheet.absoluteFill]}/>
